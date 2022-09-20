@@ -2,7 +2,7 @@ const express = require('express');
 const cors = require("cors");
 
 const receipts = [
-    {id: 1, text: 'receipt  1;'},
+    {id: 1, text: 'receipt 1'},
     {id: 2, text: 'receipt 2'}
 ]
 
@@ -16,5 +16,5 @@ app.use(cors({
 }));
 
 app.get('/api/receipts', (req, res) => {
-    res.send(receipts)
+    res.send(receipts);
 })
