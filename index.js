@@ -8,7 +8,7 @@ const receipts = [
 
 const app = express();
 
-const PORT = process.env.port || 8000;
+const PORT = process.env.PORT || 8000;
 app.listen(PORT, () => console.log(`Server side is running on port ${PORT}`))
 
 app.use(cors({
