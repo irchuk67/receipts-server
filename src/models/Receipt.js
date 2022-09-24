@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 const ReceiptSchema = new mongoose.Schema({
     text: String
-}, {collection: 'Receipt'})
+}, {collection: 'Receipt', versionKey: false})
 
 ReceiptSchema.methods.toJSONFor  = function (){
     return {

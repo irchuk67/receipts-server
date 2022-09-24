@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 dotenv.config();
 const app = express();
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://receipts:receipts@localhost:27017/receipts');
+mongoose.connect(/*process.env.MONGODB_URI || */'mongodb://receipts:receipts@localhost:27017/receipts');
 console.log(process.env.MONGODB_URI)
 const PORT = process.env.PORT || 8000;
 
