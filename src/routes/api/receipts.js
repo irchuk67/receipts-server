@@ -1,71 +1,72 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const {response} = require("express");
+const {deleteReceipt, updateReceipt, fetchReceipts, fetchReceiptById, createReceipt} = require("../../services/receiptService");
+const {NO_CONTENT, OK, NOT_FOUND, CREATED} = require("../../constants/HTTPCodes");
 const Receipt = mongoose.model('Receipt');
 const router = express.Router();
 
-router.get('/', (req, res) => {
-    Receipt.find({}).then(response => {
-        const receipts = response.map(receipt => {
+
+router.get('/', async (request, response) => {
+    const receipts = await fetchReceipts();
+    if(!receipts){
+        response.status(NOT_FOUND).send('no receipts found')
+    }else{
+        const formattedReceipts = receipts.map(receipt =>{
             return {
                 id: receipt._id,
                 text: receipt.text
             }
         })
-        res.json(receipts)
-    });
+        response.status(OK).json(formattedReceipts)
+    }
 });
 
-router.get(`/:receiptId/`, async (req, res) => {
-    await Receipt.findById(req.params.receiptId).then(receipt => {
-        if (!receipt) res.status(401)
+router.get(`/:receiptId/`, async (request, response) => {
+    const receipt = await fetchReceiptById(request.params.receiptId);
+    if (!receipt) {
+        response.status(NOT_FOUND).send('no receipt found')
+    }else{
         const receiptOut = {
             id: receipt._id,
             text: receipt.text
         }
-        res.status(200).json(receiptOut)
-    })
+        response.status(OK).json(receiptOut)
+    }
 })
 
-router.delete(`/:receiptId`, async (req, res) => {
-    await Receipt.findById(req.params.receiptId)
-        .then(response => {
-            console.log(response)
-            if (!response) res.status(404).send('no such receipt');
-            else {
-                console.log(response)
-                Receipt.deleteOne(response).then(() => {
-                    res.status(204).json(response)
-                }).catch(err => console.log(err))
-            }
-        })
-
+router.delete(`/:receiptId`, async (request, response) => {
+    const isDeleted = await deleteReceipt(request.params.receiptId);
+    console.log(isDeleted)
+    if (!isDeleted){
+        response.status(NOT_FOUND).send('no receipt found')
+    }else{
+        response.status(NO_CONTENT).send('deleted successfully')
+    }
 })
 
 router.use(express.json());
 
-router.post('/', (req, res) => {
-    const newReceipt = new Receipt({
-        text: req.body.text
-    })
+router.put('/:receiptId', async (request, response) => {
+    let updatedReceipt = await updateReceipt(request.params.receiptId, request.body)
+    if (updatedReceipt === null){
+        response.status(NOT_FOUND).send('no receipt found')
+    }else{
+        response.status(OK).json(updatedReceipt)
+    }
+})
 
-    newReceipt.save().then(() => {
-        return res.status(201).json({receipt: newReceipt.toJSONFor()});
-    }).catch(err => console.log(err));
-
+router.post('/', async (request, response) => {
+    const newReceipt = await createReceipt(request.body);
+    if (!newReceipt) {
+        response.status(NOT_FOUND).send('no receipt created')
+    }else{
+        const receiptOut = {
+            id: newReceipt._id,
+            text: newReceipt.text
+        }
+        response.status(CREATED).json(receiptOut)
+    }
 });
 
-router.put('/:receiptId', async (req, res) => {
-    await Receipt.findById(req.params.receiptId)
-        .then(response => {
-            if (!response) res.status(404).send('no such receipt');
-            else {
-                response.text = req.body.text;
-                response.save().then(resp => {
-                    res.status(200).json(response)
-                }).catch(err => console.log(err));
-            }
-        })
-})
 
 module.exports = router;
