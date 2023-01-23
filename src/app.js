@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 dotenv.config();
 const app = express();
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://receipts:receipts@localhost:27017/receipts');
+mongoose.connect("mongodb+srv://receipts:receipts@cluster0.kkfjbu2.mongodb.net/mongo?retryWrites=true&w=majority");
 console.log(process.env.MONGODB_URI)
 const PORT = process.env.PORT || 8000;
 
@@ -13,6 +13,7 @@ app.use(cors({
 }));
 require('./models/Receipt')
 require('./models/User')
+const mongodb = require("mongodb");
 app.use(require('./routes'))
 app.listen(PORT, (error) => {
     if(!error) {
